@@ -104,3 +104,25 @@ index 8916674..69bea16 100644
      buf.append((char*)&tmp64,sizeof(sessionId));
      tmp=htonl(passwd_len);
      buf.append((char*)&tmp,sizeof(tmp));
+
+diff --git a/src/c/src/mt_adaptor.c b/src/c/src/mt_adaptor.c
+--- a/src/c/src/mt_adaptor.c
++++ b/src/c/src/mt_adaptor.c
+@@ -483,6 +483,9 @@
+ int32_t fetch_and_add(volatile int32_t* operand, int incr)
+ {
+ #ifndef WIN32
++#    ifdef __GNUC__
++    return __sync_fetch_and_add(operand,incr);
++#    else
+     int32_t result;
+     asm __volatile__(
+          "lock xaddl %0,%1\n"
+@@ -490,6 +493,7 @@
+          : "0"(incr)
+          : "memory");
+    return result;
++#    endif
+ #else
+     volatile int32_t result;
+     _asm
