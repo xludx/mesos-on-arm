@@ -42,6 +42,9 @@ namespace mesos {
 namespace internal {
 namespace log {
 
+
+static uint64_t decode(const leveldb::Slice& s);
+
 class Varint64Comparator : public leveldb::Comparator
 {
 public:
@@ -50,12 +53,12 @@ public:
       const leveldb::Slice& b) const
   {
     // TODO(benh): Use varint comparator.
-    LOG(FATAL) << "Unimplemented";
-    // uint64_t left = position(a);
-    // uint64_t right = position(b);
-    // if (left < right) return -1;
-    // if (left == right) return 0;
-    // if (left > right) return 1;
+//    LOG(FATAL) << "Unimplemented";
+     uint64_t left = decode(a);
+     uint64_t right = decode(b);
+     if (left < right) return -1;
+     if (left == right) return 0;
+     if (left > right) return 1;
     UNREACHABLE();
   }
 
@@ -115,19 +118,19 @@ static string encode(uint64_t position, bool adjust = true)
 // still want to keep this function in case we need it in the future.
 // We comment it out to silence the warning (unused static function)
 // from the compiler.
-// static uint64_t decode(const leveldb::Slice& s)
-// {
+ static uint64_t decode(const leveldb::Slice& s)
+ {
 //   // TODO(benh): Use varint decoding for VarInt64Comparator!
-//   // uint64_t position;
-//   // google::protobuf::io::ArrayInputStream _stream(s.data(), s.size());
-//   // google::protobuf::io::CodedInputStream stream(&_stream);
-//   // bool success = stream.ReadVarint64(&position);
-//   // CHECK(success);
-//   // return position - 1; // Actual position is less 1 of stringified.
+    uint64_t position;
+    google::protobuf::io::ArrayInputStream _stream(s.data(), s.size());
+    google::protobuf::io::CodedInputStream stream(&_stream);
+    bool success = stream.ReadVarint64(&position);
+    CHECK(success);
+    return position - 1; // Actual position is less 1 of stringified.
 //   Try<uint64_t> position = numify<uint64_t>(string(s.data(), s.size()));
 //   CHECK_SOME(position);
 //   return position.get() - 1; // Actual position is less 1 of stringified.
-// }
+ }
 
 
 LevelDBStorage::LevelDBStorage()
