@@ -123,6 +123,18 @@ TEST(NetworkTest, Watch)
   EXPECT_EQ(1u, future.get());
 }
 
+TEST(EndiannessTest, BytewiseComparatorTest)
+{
+  const string& one = encode(1);
+  const string& two = encode(2);
+  const string& ten = encode(10);
+
+  CHECK(leveldb::BytewiseComparator()->Compare(one, two) < 0) << one << two << "i am sad";
+  CHECK(leveldb::BytewiseComparator()->Compare(two, one) > 0) << two << one << "i am sad";
+  CHECK(leveldb::BytewiseComparator()->Compare(one, ten) < 0) << "i am sad";
+  CHECK(leveldb::BytewiseComparator()->Compare(ten, two) > 0) << "i am sad";
+  CHECK(leveldb::BytewiseComparator()->Compare(ten, ten) == 0) << "i am sad";
+}
 
 template <typename T>
 class LogStorageTest : public TemporaryDirectoryTest {};
