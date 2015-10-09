@@ -375,6 +375,12 @@ Try<Nothing> pivot_root(
   // 'pivot_root' on the x86_64 architecture, see
   // arch/x86/syscalls/syscall_64.tbl
   int ret = ::syscall(155, newRoot.c_str(), putOld.c_str());
+#elif __ARM_EABI__
+  // TODO(lyda) Need to get more info on this. I see two possibilities here
+  // from /usr/include:
+  // /usr/include/asm-generic/unistd.h:#define __NR_pivot_root 41
+  // /usr/include/arm-linux-gnueabihf/asm/unistd.h:#define __NR_pivot_root                   (__NR_SYSCALL_BASE+218)
+  int ret = ::syscall(218, newRoot.c_str(), putOld.c_str());
 #else
 #error "pivot_root is not available"
 #endif
