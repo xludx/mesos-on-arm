@@ -32,6 +32,8 @@
 #include <stout/strings.hpp>
 #include <stout/unreachable.hpp>
 
+#include <google/protobuf/io/coded_stream.h>
+
 #include "log/leveldb.hpp"
 
 using std::string;
@@ -80,7 +82,7 @@ public:
 
 
 // TODO(benh): Use varint comparator.
-// static Varint64Comparator comparator;
+static Varint64Comparator comparator;
 
 
 // Returns a string representing the specified position. Note that we
@@ -93,16 +95,16 @@ static string encode(uint64_t position, bool adjust = true)
   position = adjust ? position + 1 : position;
 
   // TODO(benh): Use varint encoding for VarInt64Comparator!
-  // string s;
-  // google::protobuf::io::StringOutputStream _stream(&s);
-  // google::protobuf::io::CodedOutputStream stream(&_stream);
-  // position = adjust ? position + 1 : position;
-  // stream.WriteVarint64(position);
-  // return s;
+ string s;
+   google::protobuf::io::StringOutputStream _stream(&s);
+   google::protobuf::io::CodedOutputStream stream(&_stream);
+   position = adjust ? position + 1 : position;
+   stream.WriteVarint64(position);
+   return s;
 
-  Try<string> s = strings::format("%.*d", 10, position);
-  CHECK_SOME(s);
-  return s.get();
+//Try<string> s = strings::format("%.*d", 10, position);
+  //CHECK_SOME(s);
+  //return s.get();
 }
 
 
@@ -151,7 +153,7 @@ Try<Storage::State> LevelDBStorage::restore(const string& path)
   // gets fixed. For now, we are using the default byte-wise
   // comparator and *assuming* that the encoding from unsigned long to
   // string produces a stable ordering. Checks below.
-  // options.comparator = &comparator;
+  options.comparator = &comparator;
 
   const string& one = encode(1);
   const string& two = encode(2);
